@@ -39,8 +39,8 @@ def diagram():
       <title id="title">Open data lake</title>
       <desc id="description">Iceberg tables at the center of an open data lake.
         Six labeled icon clusters connect directly to the lake: compute engines
-        (Snowflake, BigQuery, Databricks), connectors (Fivetran), notebooks (Hex),
-        AI agents (ChatGPT and Claude), BI tools (a chart), and local compute
+        (Snowflake, BigQuery, Databricks), connectors (Fivetran), notebooks (a notebook),
+        AI agents (ChatGPT and Claude), BI tools (a chart and Hex), and local compute
         (a laptop). Conceptual architecture; adapters and execution engines
         are abstracted.</desc>
       <style>
@@ -57,7 +57,8 @@ def diagram():
     for path in [
         'M 590 187 L 590 357', 'M 700 187 L 700 357', 'M 810 187 L 810 357',
         'M 250 320 L 502 430', 'M 1150 320 L 898 430',
-        'M 260 680 L 502 555', 'M 1140 680 L 898 555',
+        'M 198 660 L 502 535', 'M 306 684 L 502 580',
+        'M 1140 680 L 898 555',
         'M 590 633 C 540 710 540 860 594 860',
         'M 810 633 C 860 710 860 860 806 860',
     ]:
@@ -74,15 +75,19 @@ def diagram():
     for name, x, y in [
         ('snowflake', 590, 140), ('googlebigquery', 700, 140),
         ('databricks', 810, 140), ('fivetran', 200, 308),
-        ('hex', 1200, 308), ('openai', 640, 860), ('claude', 760, 860),
+        ('hex', 260, 684), ('openai', 640, 860), ('claude', 760, 860),
     ]:
         parts.append(brand_icon(name, x, y, gray))
 
-    # Generic chart and laptop glyphs use the same restrained monochrome ink.
+    # Generic chart, notebook, and laptop glyphs use the same monochrome ink.
     parts.append(f'''<g fill="none" stroke="{gray}" stroke-width="3.5" stroke-linejoin="round">
-      <path d="M 150 649 V 719 H 248"/>
-      <path d="M 168 704 V 684 H 182 V 704 Z M 197 704 V 666 H 211 V 704 Z
-        M 226 704 V 645 H 240 V 704 Z" fill="{gray}" stroke="none"/>
+      <path d="M 90 649 V 719 H 188"/>
+      <path d="M 108 704 V 684 H 122 V 704 Z M 137 704 V 666 H 151 V 704 Z
+        M 166 704 V 645 H 180 V 704 Z" fill="{gray}" stroke="none"/>
+      <rect x="1170" y="272" width="60" height="72" rx="4"/>
+      <path d="M 1182 272 V 344 M 1164 284 H 1176 M 1164 300 H 1176
+        M 1164 316 H 1176 M 1164 332 H 1176 M 1192 290 H 1220
+        M 1192 304 H 1220 M 1192 318 H 1212"/>
       <rect x="1156" y="648" width="88" height="58" rx="4"/>
       <path d="M 1156 706 L 1145 721 H 1255 L 1244 706 M 1188 713 H 1212"/>
       </g>''')

@@ -109,8 +109,8 @@ uv run --python 3.12 --with dbt-charts==0.8.0 --with playwright==1.56.0 python c
 [charts/open_data_lake.png](charts/open_data_lake.png) places table icons in
 the center beneath “Open data lake,” with no “Iceberg tables” label. Six floating
 labels group the surrounding icons: compute engines (Snowflake, BigQuery,
-Databricks), connectors (Fivetran), notebooks (Hex), AI agents (ChatGPT, Claude),
-BI tools (a chart), and local compute (a laptop). Each icon connects directly to
+Databricks), connectors (Fivetran), notebooks (a notebook), AI agents (ChatGPT, Claude),
+BI tools (a chart and Hex), and local compute (a laptop). Each icon connects directly to
 the lake. The surrounding icons have no enclosing boxes. This is a conceptual architecture:
 connections abstract away adapters and execution engines, and do not claim
 that every product natively reads and writes Iceberg files itself.
@@ -121,7 +121,7 @@ and editable [SVG](charts/open_data_lake.svg).
 [The retained icon paths](charts/open_data_lake_icons.json) include their source
 URLs: Simple Icons 16.0.0 (Snowflake, BigQuery, Databricks, Claude), Simple Icons
 13.0.0 (OpenAI), and the official Fivetran and Hex sites. The brand symbols are
-rendered in monochrome; the chart and laptop are drawn by the renderer. All
+rendered in monochrome; the chart, notebook, and laptop are drawn by the renderer. All
 assets are local, so rendering requires no network access. Use Google Chrome or set
 `PUPPETEER_EXECUTABLE_PATH` to Chromium:
 
