@@ -1,0 +1,304 @@
+source: service_cost
+theme: vivid
+notes: Floating bars show USD per physical core-hour without performance normalization. Hardware is inferred; see
+  COMPUTE_COST.md for source dates and verification limits. Ratios use unrounded prices; centers are geometric means
+  on the log axis. Both comparisons are dated 2026-10-01. Categorical service slots keep the bars side by side with the x-axis hidden; spacing does not encode elapsed time. Snowflake hardware is an explicitly speculative user
+  assumption.
+style:
+  footer:
+    visible: true
+    text: "Excludes attached SSDs, global services, software, overhead..."
+    font:
+      size: 11
+      color: "#666666"
+    rule: null
+  timestamp:
+    visible: false
+queries:
+  snowflake:
+    notes: '2026-10-01 scenario: user-specified speculative hardware assumption, XS = one c7g.2xlarge and Medium
+      = four (8 physical cores each, 32 total). Snowflake Credit Consumption Table: AWS Gen2 warehouse Medium
+      5.4 credits/hour; Standard edition AWS Northern Virginia $2/credit. Gen2 matches the hardware hypothesis source.
+      Not a claim about actual Snowflake hardware.'
+    sql: |
+      SELECT '2026-10-01' AS date,
+             (5.4 * 2.00) / (4 * 8) AS cost_per_core_hour
+  databricks:
+    notes: 2026-10-01 comparison, audited 2026-10-05. Official pricing calculator data confirms Medium at 24 DBU/hour
+      x $0.70/DBU. The model infers one r8g.8xlarge driver
+      (32 physical cores) plus SIX m8g.2xlarge workers (8 cores each). The live cluster API confirms 80 reported
+      cores and six configured workers, but probes showed only three active eight-core executors. EC2 SKUs remain
+      inferred; see COMPUTE_COST.md for the inspection method, evidence, and limits.
+    sql: |
+      SELECT '2026-10-01' AS date,
+             (24 * 0.70) / (32 + 6 * 8) AS cost_per_core_hour
+  aws_snowflake_hardware:
+    notes: Current AWS regional index checked 2026-10-01 points to catalog 20260929170952. c7g.2xlarge Linux shared
+      us-east-1, 3yr All Upfront EC2 Instance Savings Plan = $0.1109/hour per instance, effective 2024-07-01. Four
+      instances, 32 physical cores; excludes storage/network.
+    sql: |
+      SELECT '2026-10-01' AS date,
+             (4 * 0.1109) / (4 * 8) AS cost_per_core_hour
+  aws_databricks_hardware:
+    notes: 'Rechecked AWS catalog 20260929170952: Linux shared us-east-1, 3yr All Upfront EC2 Instance Savings Plans.
+      One r8g.8xlarge at $0.74425/hour plus six m8g.2xlarge at $0.14175/hour each; 80 physical cores. Uses the same
+      purchase option for both instance types, excluding storage/network and volume discounts.'
+    sql: |
+      SELECT '2026-10-01' AS date,
+             (0.74425 + 6 * 0.14175) / (32 + 6 * 8) AS cost_per_core_hour
+  snowflake_comparison:
+    sql: |
+      WITH service AS (SELECT * FROM {{ queries.snowflake }}), aws AS (SELECT * FROM {{ queries.aws_snowflake_hardware }})
+      SELECT service.date, '2026 snowflake' AS year_slot,
+             service.cost_per_core_hour AS high,
+             aws.cost_per_core_hour AS low,
+             service.cost_per_core_hour / aws.cost_per_core_hour AS multiple
+      FROM service JOIN aws USING (date)
+  snowflake_bar:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.snowflake_comparison }})
+      SELECT year_slot, high AS cost FROM prices
+      UNION ALL
+      SELECT year_slot, low AS cost FROM prices
+  snowflake_upper:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.snowflake_comparison }})
+      SELECT year_slot, high AS cost, 'Snowflake M, On-Demand' AS annotation_label FROM prices
+  snowflake_lower:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.snowflake_comparison }})
+      SELECT year_slot, low AS cost, 'AWS c7g.2xlarge * 4, 3-year commit' AS annotation_label FROM prices
+  snowflake_multiple:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.snowflake_comparison }})
+      SELECT year_slot, sqrt(high * low) AS cost, printf('%.1f×', multiple) AS annotation_label FROM prices
+  databricks_comparison:
+    sql: |
+      WITH service AS (SELECT * FROM {{ queries.databricks }}), aws AS (SELECT * FROM {{ queries.aws_databricks_hardware }})
+      SELECT service.date, '2026 databricks' AS year_slot,
+             service.cost_per_core_hour AS high,
+             aws.cost_per_core_hour AS low,
+             service.cost_per_core_hour / aws.cost_per_core_hour AS multiple
+      FROM service JOIN aws USING (date)
+  databricks_bar:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.databricks_comparison }})
+      SELECT year_slot, high AS cost FROM prices
+      UNION ALL
+      SELECT year_slot, low AS cost FROM prices
+  databricks_upper:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.databricks_comparison }})
+      SELECT year_slot, high AS cost, 'Databricks M, On-Demand' AS annotation_label FROM prices
+  databricks_lower:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.databricks_comparison }})
+      SELECT year_slot, low AS cost, 'AWS r8g + m8g * 6, 3-year commit' AS annotation_label FROM prices
+  databricks_multiple:
+    sql: |
+      WITH prices AS (SELECT * FROM {{ queries.databricks_comparison }})
+      SELECT year_slot, sqrt(high * low) AS cost, printf('%.1f×', multiple) AS annotation_label FROM prices
+  endpoints:
+    sql: |
+      WITH snowflake AS (SELECT * FROM {{ queries.snowflake_bar }}),
+           databricks AS (SELECT * FROM {{ queries.databricks_bar }})
+      SELECT * FROM snowflake UNION ALL SELECT * FROM databricks
+charts:
+  comparison:
+    title: 2026 service price versus AWS CPU cost
+    type: scatter
+    query: endpoints
+    x: year_slot
+    y: cost
+    x_label: ''
+    y_label: USD per core-hour (log scale)
+    style:
+      title:
+        font:
+          case: none
+      legend:
+        visible: false
+      marks:
+        point:
+          opacity: 0
+      axis_y:
+        labels:
+          format: $.3f
+        scale:
+          continuous:
+            type: log
+            domain:
+            - 0.01
+            - 0.8
+          nice: false
+      axis_x:
+        type: ordinal
+        labels:
+          visible: false
+        title:
+          visible: false
+        ticks:
+          visible: false
+        line:
+          visible: false
+        grid:
+          visible: false
+        scale:
+          padding: 0.65
+    layers:
+    - type: line
+      query: snowflake_bar
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#29B5E8'
+              width: 90
+              cap: butt
+            halo_multiplier: 0
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+    - type: line
+      query: databricks_bar
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#FF3621'
+              width: 90
+              cap: butt
+            halo_multiplier: 0
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+    - type: scatter
+      query: snowflake_upper
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          point:
+            opacity: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: top
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+    - type: scatter
+      query: snowflake_lower
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          point:
+            opacity: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+    - type: scatter
+      query: snowflake_multiple
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          point:
+            opacity: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: middle
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+    - type: scatter
+      query: databricks_upper
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          point:
+            opacity: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: top
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+    - type: scatter
+      query: databricks_lower
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          point:
+            opacity: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+    - type: scatter
+      query: databricks_multiple
+      x: year_slot
+      y: cost
+      style:
+        marks:
+          point:
+            opacity: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: middle
+      axis_y:
+        title: USD per core-hour (log scale)
+        scale:
+          domain:
+          - 0.01
+          - 0.8
+      label: USD per core-hour (log scale)
+rows:
+- comparison

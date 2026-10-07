@@ -1,0 +1,489 @@
+source: compute_cost
+theme: vivid
+notes: Best observed public C-series committed pricing in us-east-1, normalized using physical cores and Geekbench
+  6 single-core scores. No volume tiers. Service comparisons are in service_cost.yml.
+style:
+  footer:
+    visible: false
+  timestamp:
+    visible: false
+queries:
+  frontier:
+    sql: |
+      SELECT date, cost_per_normalized_core_hour, instance
+      FROM frontier
+      UNION ALL
+      SELECT '2026-09-30', cost_per_normalized_core_hour, instance
+      FROM frontier
+      WHERE date = (SELECT max(date) FROM frontier)
+      ORDER BY date
+  annotation_1:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2013-11-15'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '200 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 1.12, instance
+      FROM frontier WHERE date = '2013-11-15'
+      ORDER BY date
+  annotation_2:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2014-04-01'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '160 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 0.7, 'price cut'
+      FROM frontier WHERE date = '2014-04-01'
+      ORDER BY date
+  annotation_3:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2015-08-02'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '210 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 1.4, instance
+      FROM frontier WHERE date = '2015-08-02'
+      ORDER BY date
+  annotation_4:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2017-11-12'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '160 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 0.72, instance
+      FROM frontier WHERE date = '2017-11-12'
+      ORDER BY date
+  annotation_5:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2019-06-19'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '-120 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 1.35, instance
+      FROM frontier WHERE date = '2019-06-19'
+      ORDER BY date
+  annotation_6:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2020-06-11'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '180 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 0.7, instance
+      FROM frontier WHERE date = '2020-06-11'
+      ORDER BY date
+  annotation_7:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2022-05-23'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '180 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 1.45, instance
+      FROM frontier WHERE date = '2022-05-23'
+      ORDER BY date
+  annotation_8:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2024-09-25'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '-140 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 0.7, instance
+      FROM frontier WHERE date = '2024-09-25'
+      ORDER BY date
+  annotation_9:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2025-12-02'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '-250 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 1.5, instance
+      FROM frontier WHERE date = '2025-12-02'
+      ORDER BY date
+  annotation_10:
+    notes: Two-point annotation stem; first point is the measured frontier, second is an offset label anchor.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour AS cost_per_normalized_core_hour, '' AS annotation_label
+      FROM frontier WHERE date = '2026-06-30'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '-130 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 0.82, instance
+      FROM frontier WHERE date = '2026-06-30'
+      ORDER BY date
+  price_cut_2016_01:
+    notes: Approximately 5% lower effective price for the same C4 instance; date is the first archived observation,
+      not a verified effective date.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour, '' AS annotation_label FROM frontier WHERE date = '2016-01-13'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '-100 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 0.7, 'price cut' FROM frontier WHERE date = '2016-01-13'
+      ORDER BY date
+  price_cut_2016_12:
+    notes: Approximately 5% lower effective price for the same C4 instance; date is the first archived observation,
+      not a verified effective date.
+    sql: |-
+      SELECT date, cost_per_normalized_core_hour, '' AS annotation_label FROM frontier WHERE date = '2016-12-10'
+      UNION ALL
+      SELECT strftime(CAST(date AS DATE) + INTERVAL '180 days', '%Y-%m-%d'), cost_per_normalized_core_hour * 0.48, 'price cut' FROM frontier WHERE date = '2016-12-10'
+      ORDER BY date
+charts:
+  cost:
+    title: Compute cost
+    subtitle: Best observed AWS C-series price-performance, normalized using Geekbench single-core = 1000
+    query: frontier
+    type: line
+    x: date
+    y: cost_per_normalized_core_hour
+    x_label: Year
+    y_label: USD per normalized core-hour (log scale)
+    style:
+      title:
+        font:
+          case: none
+        subtitle:
+          font:
+            case: none
+      legend:
+        visible: false
+      marks:
+        line:
+          curve: step-after
+      axis_x:
+        type: temporal
+        time_unit: none
+        labels:
+          format: '%Y'
+      axis_y:
+        labels:
+          format: $.3f
+        scale:
+          continuous:
+            type: log
+            domain:
+            - 0.005
+            - 0.1
+          nice: false
+    layers:
+    - type: line
+      query: annotation_1
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: top
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_2
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_3
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: top
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_4
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_5
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: top
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_6
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_7
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: top
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_8
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_9
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: top
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: annotation_10
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: price_cut_2016_01
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+    - type: line
+      query: price_cut_2016_12
+      x: date
+      y: cost_per_normalized_core_hour
+      style:
+        marks:
+          line:
+            curve: linear
+            stroke:
+              color: '#888888'
+              width: 1
+            halo_multiplier: 0
+            labels:
+              visible: true
+              field: annotation_label
+              position: bottom
+              font:
+                color: '#444444'
+          point:
+            size: 0
+      label: USD per normalized core-hour (log scale)
+      axis_y:
+        title: USD per normalized core-hour (log scale)
+        scale:
+          domain:
+          - 0.005
+          - 0.1
+rows:
+- cost

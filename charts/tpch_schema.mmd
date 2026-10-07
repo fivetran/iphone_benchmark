@@ -1,0 +1,42 @@
+---
+title: TPC-H schema · SF200 (200 GB)
+config:
+  theme: base
+  look: classic
+  themeVariables:
+    background: '#ffffff'
+    primaryColor: '#0073c2'
+    primaryTextColor: '#ffffff'
+    primaryBorderColor: '#0073c2'
+    lineColor: '#D0D3D9'
+    titleColor: '#313233'
+    fontFamily: 'Inter Variable, sans-serif'
+    fontSize: 18px
+  flowchart:
+    htmlLabels: false
+    curve: linear
+    nodeSpacing: 40
+    rankSpacing: 65
+    wrappingWidth: 260
+---
+%% Parent-to-child arrows represent one-to-many logical relationships.
+%% Counts follow TPC-H scale-factor rules; lineitem is approximate.
+%% SF200 is nominal data scale, not compressed database size.
+flowchart TB
+    region["region<br/>5 rows"]
+    nation["nation<br/>25 rows"]
+    customer["customer<br/>30M rows"]
+    supplier["supplier<br/>2M rows"]
+    part["part<br/>40M rows"]
+    orders["orders<br/>300M rows"]
+    partsupp["partsupp<br/>160M rows"]
+    lineitem["lineitem<br/>≈1.2B rows"]
+
+    region --> nation
+    nation --> customer
+    nation --> supplier
+    customer --> orders
+    supplier --> partsupp
+    part --> partsupp
+    orders --> lineitem
+    partsupp --> lineitem

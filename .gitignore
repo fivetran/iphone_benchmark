@@ -1,0 +1,15 @@
+# Local benchmark/build environments and caches
+.venv/
+.work/
+__pycache__/
+*.py[cod]
+.cache/
+.dbt_charts/
+
+# Recorded benchmark outputs and alternate render formats (retained locally)
+# Final chart PNGs are intentionally version-controlled.
+/results/
+/charts/*.svg
+/charts/*.pdf
+/charts/*.html
+/charts/renders/

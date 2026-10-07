@@ -1,0 +1,42 @@
+source: benchmark
+theme: vivid
+notes: Databricks server-total time versus local iPhone elapsed time, using the selected first cooled SF200 iPhone run and completed M, S, and XS sweeps. Databricks total_time_ms includes compilation and excludes client/network overhead; iPhone timing includes local execution and result conversion.
+style:
+  footer:
+    visible: false
+  timestamp:
+    visible: false
+queries:
+  comparison:
+    notes: Geometric mean across 22 queries after averaging each query's two repetitions. Databricks uses recorded total_time_ms, not summed CPU time or client elapsed. Ordered categories reproduce exact log2 positions for these four doubling scale factors.
+    sql: |
+      SELECT CAST(scale_factor AS VARCHAR) AS scale_factor, engine, runtime_seconds
+      FROM timing_summary
+      ORDER BY scale_factor::INTEGER, engine
+charts:
+  elapsed:
+    title: TPC-H · iPhone vs Databricks
+    subtitle: Databricks server total · iPhone local time · 22 queries × 2 runs
+    notes: Compare Databricks server-total runtime with local iPhone elapsed time on logarithmic axes; phone used external cooling, six threads, and a 6 GB buffer limit. Compilation is included; client/network overhead, setup, and cooling waits are excluded.
+    query: comparison
+    type: line
+    x: scale_factor
+    y: runtime_seconds
+    color: engine
+    x_label: TPC-H scale factor (GB, log scale)
+    y_label: Geomean query runtime (seconds, log scale)
+    style:
+      title:
+        font:
+          case: none
+        subtitle:
+          font:
+            case: none
+      axis_y:
+        scale:
+          continuous:
+            type: log
+            log:
+              base: 2
+rows:
+  - elapsed

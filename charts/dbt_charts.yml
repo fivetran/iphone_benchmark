@@ -1,0 +1,14 @@
+sources:
+  benchmark:
+    type: duckdb
+    path: ../results/results.duckdb
+  scan_volumes:
+    type: duckdb
+    path: ../results/results.duckdb
+  compute_cost:
+    type: json
+    files:
+      frontier: compute_cost_data.json
+  service_cost:
+    type: duckdb
+    path: ':memory:'

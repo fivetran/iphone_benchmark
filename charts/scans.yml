@@ -1,0 +1,39 @@
+source: scan_volumes
+theme: vivid
+notes: Published Snowflake and Redshift raw histogram counts pooled and normalized versus 176 DuckDB-on-Mac executions at SF25/50/100/200; compressed storage reads are a proxy for scan volume, with source metric differences documented in the CHARTS.md.
+style:
+  footer:
+    visible: false
+  timestamp:
+    visible: false
+queries:
+  scan_distribution:
+    notes: Two independently normalized distributions on the notebook's original doubling bins; each label is the inclusive lower bound, with all bins >=1 TiB pooled in the final bucket.
+    sql: |
+      SELECT bin_label, series, query_fraction
+      FROM histogram
+      ORDER BY bin_index, series
+charts:
+  scan_distribution:
+    title: Data scanned per query
+    subtitle: Published queries vs our workload · SF25 / 50 / 100 / 200
+    notes: Compare the shape of the pooled published workload with all 22 queries times two repetitions at each of four scales, weighted equally per execution; no local observation is below the source's 1 MiB cutoff.
+    query: scan_distribution
+    type: bar
+    x: bin_label
+    y: query_fraction
+    color: series
+    x_label: Data scanned per query (doubling bins; lower bounds)
+    y_label: Share of queries
+    style:
+      title:
+        font:
+          case: none
+        subtitle:
+          font:
+            case: none
+      orientation: vertical
+      stack: none
+      number_format: percent
+rows:
+  - scan_distribution
